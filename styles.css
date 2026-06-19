@@ -4,6 +4,14 @@ body { font-family: system-ui, sans-serif; background-color: #f4f4f9; color: #33
 input, select, button { padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; }
 button { background-color: #2b3a42; color: white; cursor: pointer; }
 .tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
-.carta { aspect-ratio: 1; background-color: #2b3a42; color: transparent; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; user-select: none; }
-.carta.volteada { background-color: #fff; color: #222; border: 2px solid #2b3a42; }
-.carta.encontrada { background-color: #cdebd7; color: #222; cursor: default; }
+.carta { aspect-ratio: 1; background-color: #2b3a42; color: transparent; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; user-select: none; transition: transform 0.2s; }
+.carta.volteada { background-color: #fff; color: #222; border: 2px solid #2b3a42; transform: scale(1.05); }
+.carta.encontrada { background-color: #cdebd7; color: #222; border: 2px solid #82c99a; cursor: default; }
+.caja-timer { display: flex; align-items: center; gap: 5px; background: #e8eef0; padding: 5px 10px; border-radius: 6px; }
+#segundos-timer { width: 60px; }
+.oculto { display: none !important; }
+#tiempo-restante { font-weight: bold; color: #d9534f; }
+.ranking-contenedor { margin-top: 30px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc; text-align: left; }
+.ranking-contenedor h3 { margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #e8eef0; padding-bottom: 5px; }
+#lista-ranking { list-style: none; padding: 0; margin: 0; }
+#lista-ranking li { padding: 8px 0; border-bottom: 1px dashed #ccc; font-size: 0.95rem; }
