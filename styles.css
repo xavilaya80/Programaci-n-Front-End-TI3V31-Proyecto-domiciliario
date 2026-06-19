@@ -1,0 +1,9 @@
+body { font-family: system-ui, sans-serif; background-color: #f4f4f9; color: #333; display: flex; justify-content: center; padding: 20px; margin: 0; }
+.contenedor { max-width: 600px; width: 100%; text-align: center; }
+.controles, .info-juego { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+input, select, button { padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; }
+button { background-color: #2b3a42; color: white; cursor: pointer; }
+.tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+.carta { aspect-ratio: 1; background-color: #2b3a42; color: transparent; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; user-select: none; }
+.carta.volteada { background-color: #fff; color: #222; border: 2px solid #2b3a42; }
+.carta.encontrada { background-color: #cdebd7; color: #222; cursor: default; }

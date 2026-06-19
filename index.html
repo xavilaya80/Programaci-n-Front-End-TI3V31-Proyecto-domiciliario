@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria - Proyecto Final</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="contenedor">
+        <h1>Memoria Táctica</h1>
+        <div class="controles">
+            <input type="text" id="nombre-jugador" placeholder="Ingresa tu nombre..." autocomplete="off">
+            <select id="dificultad">
+                <option value="4">Fácil (4 pares)</option>
+                <option value="8" selected>Normal (8 pares)</option>
+            </select>
+            <button id="btn-iniciar">Iniciar Juego</button>
+        </div>
+        <div class="info-juego">
+            <p id="contador-movimientos">Movimientos: 0</p>
+            <p id="mensaje-victoria"></p>
+        </div>
+        <div id="tablero" class="tablero"></div>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
