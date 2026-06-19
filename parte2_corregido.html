@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Memoria — versión auditada</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:540px;margin:40px auto;padding:0 16px;color:#222}
+  h1{font-size:1.4rem}
+  .fila{display:flex;gap:8px;margin-bottom:16px}
+  input{flex:1;padding:8px 10px;font-size:1rem;border:1px solid #bbb;border-radius:6px}
+  button{padding:8px 12px;font-size:1rem;cursor:pointer;border:1px solid #888;border-radius:6px;background:#f3f3f3}
+  #tablero{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+  .carta{aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    font-size:1.8rem;background:#2b3a42;color:#fff;border-radius:10px;cursor:pointer;user-select:none}
+  .carta.volteada{background:#e8eef0;color:#222}
+  .carta.encontrada{background:#cdebd7;color:#222;cursor:default}
+  #movimientos{color:#666;font-size:.9rem;margin-top:14px}
+  #mensaje{font-size:1.1rem;font-weight:600;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>Juego de Memoria - Auditado</h1>
+
+<div class="fila">
+  <input id="nombre" placeholder="Tu nombre...">
+  <button id="iniciar">Iniciar / Reiniciar</button>
+</div>
+
+<div id="tablero"></div>
+<p id="movimientos"></p>
+<p id="mensaje"></p>
+
+<script>
+  const EMOJIS = ['🍎', '🚀', '🐱', '🌵', '🎲', '🎧', '⚽', '🍕'];
+
+  let cartas = [];      
+  let volteadas = [];   
+  let movimientos = 0;
+  let nombre = '';
+
+  // FIX: (Arquitectura/Funcional) Añadimos una variable de estado explícita para bloquear el tablero.
+  let tableroBloqueado = false;
+
+  const tablero = document.getElementById('tablero');
+
+  // BUG: (Olor de Arquitectura/Rendimiento) En la versión original, se creaba un event listener individual 
+  // dentro del bucle for en la función render() por cada carta.
+  // FIX: Usamos Delegación de Eventos. Colocamos un único listener en el contenedor padre (#tablero).
+  tablero.addEventListener('click', function(e) {
+    const cartaClickeada = e.target.closest('.carta');
+    if (!cartaClickeada) return;
+    
+    const i = Number(cartaClickeada.dataset.indice);
+    voltearCarta(i);
+  });
+
+  document.getElementById('iniciar').addEventListener('click', function () {
+    nombre = document.getElementById('nombre').value;
+    cartas = [];
+    EMOJIS.forEach(function (e) {
+      // FIX: (Arquitectura) Añadimos 'volteada' al estado para que el render dependa 100% de los datos.
+      cartas.push({ emoji: e, encontrada: false, volteada: false });
+      cartas.push({ emoji: e, encontrada: false, volteada: false });
+    });
+    cartas.sort(function () { return Math.random() - 0.5; });
+    volteadas = [];
+    movimientos = 0;
+    tableroBloqueado = false;
+    document.getElementById('mensaje').textContent = '';
+    render();
+  });
+
+  function render() {
+    tablero.innerHTML = '';
+    for (let i = 0; i < cartas.length; i++) {
+      const div = document.createElement('div');
+      div.className = 'carta';
+      div.dataset.indice = i;
+      
+      // La UI se dibuja estrictamente leyendo el estado de la carta
+      div.textContent = cartas[i].encontrada || cartas[i].volteada ? cartas[i].emoji : '?';
+      if (cartas[i].volteada) div.classList.add('volteada');
+      if (cartas[i].encontrada) div.classList.add('encontrada');
+      
+      tablero.appendChild(div);
+    }
+    document.getElementById('movimientos').textContent = 'Movimientos: ' + movimientos;
+  }
+
+  function voltearCarta(i) {
+    // BUG: (Bug Funcional) Antes, podías hacer doble clic en la misma carta y el juego la tomaba como una pareja válida. 
+    // También podías hacer clic en una tercera carta mientras el setTimeout estaba corriendo, rompiendo el flujo.
+    // FIX: Salir inmediatamente de la función si el tablero está bloqueado, si la carta ya fue encontrada, o si ya está en el arreglo de volteadas.
+    if (tableroBloqueado || cartas[i].encontrada || volteadas.includes(i)) return;
+
+    cartas[i].volteada = true;
+    volteadas.push(i);
+    render(); 
+
+    if (volteadas.length === 2) {
+      movimientos++;
+      tableroBloqueado = true; 
+
+      const a = volteadas[0];
+      const b = volteadas[1];
+
+      // BUG: (Olor de Arquitectura) Antes se comparaba leyendo directamente el DOM: divs[a].textContent === divs[b].textContent.
+      // FIX: La validación lógica debe hacerse sobre la fuente única de verdad (el estado 'cartas'), nunca sobre el DOM.
+      if (cartas[a].emoji === cartas[b].emoji) {
+        cartas[a].encontrada = true;
+        cartas[b].encontrada = true;
+        volteadas = [];
+        tableroBloqueado = false; 
+        render();
+        revisarVictoria();
+      } else {
+        setTimeout(function () {
+          cartas[a].volteada = false;
+          cartas[b].volteada = false;
+          volteadas = [];
+          tableroBloqueado = false; 
+          render();
+        }, 800);
+      }
+    }
+  }
+
+  function revisarVictoria() {
+    const todasEncontradas = cartas.every(function (c) { return c.encontrada; });
+    if (todasEncontradas) {
+      // BUG: (Problema de Seguridad XSS) Usar innerHTML para inyectar una variable no sanitizada permite inyectar scripts maliciosos.
+      // FIX: Usar textContent garantiza que el texto se renderice como texto literal.
+      document.getElementById('mensaje').textContent = '¡Ganaste, ' + nombre + '! 🎉';
+    }
+  }
+</script>
+</body>
+</html>
